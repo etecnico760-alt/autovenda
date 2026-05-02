@@ -1,0 +1,39 @@
+{"name": "autovenda","version": "1.0.0","main": "server.js","scripts": {"start": "node server.js"},"dependencies": {"express": "4.18.2","cors": "2.8.5"}}
+
+⚠️ REGRAS IMPORTANTES
+👉 Presta atenção nesses pontos (é aqui que dá erro):
+
+
+Tem que começar com {
+
+
+Tem que terminar com }
+
+
+NÃO pode ter vírgula depois de "2.8.5"
+
+
+Aspas sempre duplas " "
+
+
+Não usar acento nem emoji
+
+
+
+💡 DICA PROFISSIONAL
+Se quiser testar antes:
+👉 copia o conteúdo e cola aqui:
+https://jsonlint.com
+Ele mostra se está válido.
+
+🚀 DEPOIS
+👉 Clique em Commit changes
+👉 Volta pro Railway
+👉 Clique em Deploy novamente
+
+💬 SE AINDA DER ERRO
+Me manda print do package.json aberto
+(essa tela de edição mesmo)
+👉 eu corrijo linha por linha pra você
+
+Você já está literalmente a 1 passo de colocar online 👊
