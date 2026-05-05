@@ -7,14 +7,13 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("API ONLINE 🚀");
-  
 });
 
 app.get("/testar", async (req, res) => {
   const mensagem = req.query.msg || "Olá!";
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models//v1/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -22,8 +21,9 @@ app.get("/testar", async (req, res) => {
         contents: [{ parts: [{ text: mensagem }] }]
       })
     });
-    const data = await response.json();
-    console.log("Gemini:", JSON.stringify(data));
+    const text = await response.text();
+    console.log("Raw Gemini:", text);
+    const data = JSON.parse(text);
     const resposta = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta";
     res.json({ voce: mensagem, bot: resposta });
   } catch (err) {
