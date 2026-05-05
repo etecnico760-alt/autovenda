@@ -79,7 +79,14 @@ async function enviarWhatsApp(telefone, mensagem) {
     })
   });
 }
-
+app.get("/testar", async (req, res) => {
+  const mensagem = req.query.msg || "Olá!";
+  const resposta = await chamarGemini(mensagem);
+  res.json({ 
+    voce: mensagem, 
+    bot: resposta 
+  });
+});
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
   console.log("Rodando na porta " + PORT);
