@@ -7,6 +7,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("API ONLINE 🚀");
+  
 });
 
 app.get("/testar", async (req, res) => {
