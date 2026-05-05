@@ -58,8 +58,8 @@ async function chamarGemini(mensagem) {
     })
   });
   const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "Não entendi 😅";
-}
+console.log("Resposta Gemini:", JSON.stringify(data));
+return data.candidates?.[0]?.content?.parts?.[0]?.text || "Não entendi 😅";
 
 async function enviarWhatsApp(telefone, mensagem) {
   const token = process.env.WHATSAPP_TOKEN;
