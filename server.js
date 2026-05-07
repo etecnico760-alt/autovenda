@@ -21,11 +21,22 @@ app.get("/testar", async (req, res) => {
       },
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
-        messages: [{ role: "user", content: mensagem }]
+        messages: [
+          {
+            role: "system",
+            content: `Você é um assistente de vendas simpático e prestativo do AutoVenda, 
+            um sistema de automação de WhatsApp para negócios brasileiros. 
+            Responda sempre em português brasileiro de forma amigável e objetiva.
+            Seu objetivo é tirar dúvidas dos clientes e ajudá-los a entender como o AutoVenda pode ajudar o negócio deles.
+            O AutoVenda custa R$47/mês e oferece: bot de WhatsApp com IA, respostas automáticas 24h, 
+            captação de leads automática e dashboard de controle.
+            Seja sempre positivo e tente mostrar o valor do produto.`
+          },
+          { role: "user", content: mensagem }
+        ]
       })
     });
     const data = await response.json();
-    console.log("Groq:", JSON.stringify(data));
     const resposta = data.choices?.[0]?.message?.content || "Sem resposta";
     res.json({ voce: mensagem, bot: resposta });
   } catch (err) {
