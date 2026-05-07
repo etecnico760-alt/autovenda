@@ -12,19 +12,21 @@ app.get("/", (req, res) => {
 app.get("/testar", async (req, res) => {
   const mensagem = req.query.msg || "Olá!";
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    const response = await fetch(url, {
+    const apiKey = process.env.GROQ_API_KEY;
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: mensagem }] }]
+        model: "llama3-8b-8192",
+        messages: [{ role: "user", content: mensagem }]
       })
     });
-    const text = await response.text();
-    console.log("Raw Gemini:", text);
-    const data = JSON.parse(text);
-    const resposta = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta";
+    const data = await response.json();
+    console.log("Groq:", JSON.stringify(data));
+    const resposta = data.choices?.[0]?.message?.content || "Sem resposta";
     res.json({ voce: mensagem, bot: resposta });
   } catch (err) {
     console.error("Erro:", err.message);
