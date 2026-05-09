@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoVenda AI - Automatize suas vendas no WhatsApp</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#fff}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;background:radial-gradient(ellipse at top,#1a1040 0%,#0a0a0a 70%)}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(127,119,221,0.15);border:1px solid rgba(127,119,221,0.3);color:#AFA9EC;font-size:13px;padding:6px 16px;border-radius:20px;margin-bottom:24px}
+.dot{width:6px;height:6px;border-radius:50%;background:#1D9E75;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-size:52px;font-weight:700;line-height:1.15;max-width:700px;margin-bottom:20px}
+h1 span{background:linear-gradient(135deg,#AFA9EC,#7F77DD);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-size:18px;color:#888;max-width:500px;line-height:1.6;margin-bottom:40px}
+.cta-group{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn-cta{padding:14px 32px;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s}
+.btn-primary{background:#534AB7;color:#fff;border:none}
+.btn-primary:hover{background:#4a42a3;transform:translateY(-2px)}
+.btn-secondary{background:transparent;color:#fff;border:1px solid #333}
+.btn-secondary:hover{background:#111}
+.social-proof{margin-top:48px;display:flex;align-items:center;gap:16px;color:#666;font-size:13px}
+.stars{color:#EF9F27;letter-spacing:2px}
+section{padding:80px 20px;max-width:1000px;margin:0 auto}
+.section-badge{display:inline-block;background:rgba(127,119,221,0.1);color:#AFA9EC;font-size:12px;padding:4px 12px;border-radius:20px;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:36px;font-weight:700;margin-bottom:12px}
+h2 span{color:#AFA9EC}
+.section-sub{color:#666;font-size:16px;max-width:500px;margin:0 auto 48px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feature{background:#111;border:1px solid #1a1a1a;border-radius:16px;padding:24px;transition:border-color 0.2s}
+.feature:hover{border-color:#534AB7}
+.feature-icon{width:48px;height:48px;border-radius:12px;background:rgba(127,119,221,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+.feature h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.feature p{color:#666;font-size:14px;line-height:1.6}
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
+.step{padding:20px}
+.step-num{width:48px;height:48px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;margin:0 auto 16px}
+.step h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.step p{color:#666;font-size:13px;line-height:1.5}
+.pricing{text-align:center}
+.price-card{background:#111;border:1px solid #534AB7;border-radius:20px;padding:40px;max-width:420px;margin:0 auto}
+.price-badge{background:#534AB7;color:#fff;font-size:12px;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:20px}
+.price{font-size:56px;font-weight:700;color:#fff}
+.price span{font-size:20px;color:#666;font-weight:400}
+.price-period{color:#666;font-size:14px;margin-bottom:24px}
+.price-features{list-style:none;text-align:left;margin-bottom:28px}
+.price-features li{padding:10px 0;border-bottom:1px solid #1a1a1a;color:#ccc;font-size:14px;display:flex;align-items:center;gap:10px}
+.price-features li::before{content:'✓';color:#1D9E75;font-weight:700}
+.btn-buy{display:block;width:100%;padding:14px;background:#534AB7;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.2s}
+.btn-buy:hover{background:#4a42a3}
+.guarantee{margin-top:16px;color:#666;font-size:13px}
+.faq{max-width:600px;margin:0 auto}
+.faq-item{border-bottom:1px solid #1a1a1a;padding:20px 0}
+.faq-q{font-size:15px;font-weight:500;color:#fff;margin-bottom:8px}
+.faq-a{color:#666;font-size:14px;line-height:1.6}
+footer{text-align:center;padding:40px 20px;border-top:1px solid #1a1a1a;color:#444;font-size:13px}
+@media(max-width:768px){h1{font-size:32px}.features{grid-template-columns:1fr}.how{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge"><span class="dot"></span> IA ativa 24 horas por dia</div>
+  <h1>Venda mais no WhatsApp com <span>Inteligência Artificial</span></h1>
+  <p class="subtitle">O AutoVenda responde seus clientes automaticamente, capta leads e fecha vendas enquanto você dorme.</p>
+  <div class="cta-group">
+    <a href="/index.html" class="btn-cta btn-primary">Começar agora — R$47/mês</a>
+    <a href="#como-funciona" class="btn-cta btn-secondary">Ver como funciona</a>
+  </div>
+  <div class="social-proof">
+    <span class="stars">★★★★★</span>
+    <span>Mais de 500 negócios automatizados</span>
+  </div>
+</div>
+
+<section style="text-align:center">
+  <div class="section-badge">Recursos</div>
+  <h2>Tudo que você precisa para <span>vender mais</span></h2>
+  <p class="section-sub">Uma plataforma completa de automação de vendas no WhatsApp</p>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">🤖</div>
+      <h3>Bot com IA</h3>
+      <p>Responde perguntas, tira dúvidas e convence clientes automaticamente com inteligência artificial.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <h3>Respostas 24h</h3>
+      <p>Seu negócio nunca dorme. O bot atende clientes a qualquer hora, inclusive fins de semana e feriados.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">👥</div>
+      <h3>Captação de leads</h3>
+      <p>Salva automaticamente todos os contatos que interagem com seu bot no dashboard.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <h3>Dashboard completo</h3>
+      <p>Acompanhe leads, conversas e métricas de vendas em tempo real pelo painel.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔄</div>
+      <h3>Automações</h3>
+      <p>Configure follow-ups automáticos, mensagens de boas-vindas e ofertas especiais.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💬</div>
+      <h3>Histórico de conversas</h3>
+      <p>Veja todas as conversas dos seus clientes em um só lugar, organizado e fácil de acessar.</p>
+    </div>
+  </div>
+</section>
+
+<section id="como-funciona" style="text-align:center">
+  <div class="section-badge">Como funciona</div>
+  <h2>Simples assim</h2>
+  <p class="section-sub">Em 4 passos você já está vendendo no automático</p>
+  <div class="how">
+    <div class="step"><div class="step-num">1</div><h3>Crie sua conta</h3><p>Cadastro gratuito em menos de 1 minuto</p></div>
+    <div class="step"><div class="step-num">2</div><h3>Configure a IA</h3><p>Conte para a IA sobre seu negócio e produto</p></div>
+    <div class="step"><div class="step-num">3</div><h3>Conecte o WhatsApp</h3><p>Vincule seu número ao sistema</p></div>
+    <div class="step"><div class="step-num">4</div><h3>Venda no automático</h3><p>A IA responde e capta leads 24h por dia</p></div>
+  </div>
+</section>
+
+<section class="pricing" id="preco">
+  <div class="section-badge">Preço</div>
+  <h2 style="margin-bottom:8px">Investimento <span>acessível</span></h2>
+  <p class="section-sub">Sem taxa de instalação. Cancele quando quiser.</p>
+  <div class="price-card">
+    <div class="price-badge">Plano PRO</div>
+    <div class="price">R$47<span>/mês</span></div>
+    <div class="price-period">Cobrado mensalmente · Cancele quando quiser</div>
+    <ul class="price-features">
+      <li>Bot com IA ilimitado</li>
+      <li>Respostas automáticas 24h</li>
+      <li>Captação de leads automática</li>
+      <li>Dashboard completo</li>
+      <li>Automações infinitas</li>
+      <li>Suporte prioritário</li>
+    </ul>
+    <a href="/index.html" class="btn-buy">Assinar agora</a>
+    <p class="guarantee">🔒 Pagamento seguro · Garantia de 7 dias</p>
+  </div>
+</section>
+
+<section>
+  <div style="text-align:center;margin-bottom:48px">
+    <div class="section-badge">FAQ</div>
+    <h2>Dúvidas <span>frequentes</span></h2>
+  </div>
+  <div class="faq">
+    <div class="faq-item"><div class="faq-q">Preciso saber programar?</div><div class="faq-a">Não! O AutoVenda foi criado para qualquer pessoa usar. A configuração é simples e intuitiva.</div></div>
+    <div class="faq-item"><div class="faq-q">Funciona com qualquer número de WhatsApp?</div><div class="faq-a">Funciona com números verificados na plataforma WhatsApp Business. Ajudamos você a configurar tudo.</div></div>
+    <div class="faq-item"><div class="faq-q">Posso cancelar a qualquer momento?</div><div class="faq-a">Sim! Sem multa ou fidelidade. Cancele quando quiser com um clique.</div></div>
+    <div class="faq-item"><div class="faq-q">A IA responde em português?</div><div class="faq-a">Sim! A IA foi configurada para responder sempre em português brasileiro, de forma natural e simpática.</div></div>
+    <div class="faq-item"><div class="faq-q">Quanto tempo para configurar?</div><div class="faq-a">Em menos de 15 minutos você já tem o bot funcionando e respondendo seus clientes.</div></div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 AutoVenda AI · Todos os direitos reservados</p>
+  <p style="margin-top:8px"><a href="/index.html" style="color:#534AB7;text-decoration:none">Acessar plataforma</a></p>
+</footer>
+
+</body>
+</html>
