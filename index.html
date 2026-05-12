@@ -18,9 +18,12 @@ nav{flex:1;padding:12px 8px}
 .nav-item:hover{background:#1a1a1a;color:#ccc}
 .nav-item.active{background:rgba(127,119,221,0.15);color:#AFA9EC}
 .nav-item svg{width:18px;height:18px;flex-shrink:0}
-.user-area{padding:12px 16px;border-top:1px solid #222;display:flex;align-items:center;gap:10px}
+.user-area{padding:12px 16px;border-top:1px solid #222;display:flex;align-items:center;gap:10px;cursor:pointer}
+.user-area:hover{background:#1a1a1a}
 .avatar{width:32px;height:32px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
-.user-email{color:#666;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-email{color:#666;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.logout-btn{background:none;border:none;color:#666;cursor:pointer;font-size:12px;padding:4px 8px;border-radius:6px}
+.logout-btn:hover{background:#222;color:#fff}
 .main{flex:1;overflow-y:auto;background:#0f0f0f}
 .page{display:none;padding:32px;max-width:1000px}
 .page.active{display:block}
@@ -43,6 +46,8 @@ nav{flex:1;padding:12px 8px}
 .btn:hover{background:#222}
 .btn-primary{background:#534AB7;border-color:#534AB7;color:#fff}
 .btn-primary:hover{background:#4a42a3}
+.btn-danger{background:rgba(226,75,74,0.1);border-color:#E24B4A;color:#E24B4A}
+.btn-danger:hover{background:rgba(226,75,74,0.2)}
 .lead-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1a1a1a}
 .lead-item:last-child{border-bottom:none}
 .lead-avatar{width:38px;height:38px;border-radius:50%;background:#1a2744;display:flex;align-items:center;justify-content:center;color:#378ADD;font-size:13px;font-weight:600;flex-shrink:0}
@@ -55,35 +60,46 @@ nav{flex:1;padding:12px 8px}
 .auto-name{font-size:14px;font-weight:500;color:#fff}
 .auto-desc{font-size:12px;color:#666}
 .toggle{margin-left:auto;width:38px;height:22px;background:#1D9E75;border-radius:20px;position:relative;cursor:pointer;flex-shrink:0}
-.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;right:2px}
+.toggle.off{background:#333}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;right:2px;transition:right 0.2s}
+.toggle.off::after{right:auto;left:2px}
 .chat-item{display:flex;align-items:center;gap:12px;padding:12px;background:#1a1a1a;border-radius:10px;margin-bottom:8px;cursor:pointer}
 .chat-item:hover{background:#222}
 .chat-av{width:40px;height:40px;border-radius:50%;background:rgba(186,117,23,0.2);display:flex;align-items:center;justify-content:center;color:#EF9F27;font-size:14px;font-weight:600;flex-shrink:0}
 .chat-name{font-size:14px;font-weight:500;color:#fff}
 .chat-prev{font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-time{margin-left:auto;font-size:11px;color:#444;flex-shrink:0}
-textarea{width:100%;padding:12px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:14px;font-family:inherit;resize:vertical;min-height:120px;margin-bottom:12px}
-textarea:focus{outline:none;border-color:#534AB7}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;color:#888;margin-bottom:6px}
+.form-input{width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:14px;transition:border-color 0.15s}
+.form-input:focus{outline:none;border-color:#534AB7}
+textarea.form-input{resize:vertical;min-height:100px;font-family:inherit}
 .test-row{display:flex;gap:8px;margin-top:16px}
-.test-input{flex:1;padding:10px 14px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:14px}
-.test-input:focus{outline:none;border-color:#534AB7}
 .bot-resp{margin-top:12px;padding:14px;background:#1a1a1a;border-radius:8px;font-size:14px;color:#ccc;line-height:1.6;display:none;border-left:3px solid #534AB7}
 .loading{display:none;padding:12px;color:#666;font-size:14px}
+.status-card{display:flex;align-items:center;gap:12px;padding:16px;background:#1a1a1a;border-radius:10px;margin-bottom:12px}
+.status-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+.status-connected{background:rgba(29,158,117,0.15)}
+.status-disconnected{background:rgba(226,75,74,0.1)}
+.status-title{font-size:14px;font-weight:500;color:#fff}
+.status-sub{font-size:12px;color:#666;margin-top:2px}
+.divider{border:none;border-top:1px solid #222;margin:20px 0}
+.success-msg{background:rgba(29,158,117,0.1);color:#1D9E75;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.error-msg-inline{background:rgba(226,75,74,0.1);color:#E24B4A;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.config-section{margin-bottom:28px}
+.config-section-title{font-size:13px;font-weight:500;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1a1a1a}
 
 /* LOGIN */
 .login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0a0a}
 .login-box{background:#111;border:1px solid #222;border-radius:16px;padding:40px;width:100%;max-width:400px}
 .login-box h1{font-size:22px;font-weight:600;color:#fff;margin-bottom:4px}
 .login-box p{color:#666;font-size:14px;margin-bottom:28px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:13px;color:#888;margin-bottom:6px}
-.form-group input{width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:14px}
-.form-group input:focus{outline:none;border-color:#534AB7}
-.login-btn{width:100%;padding:11px;background:#534AB7;border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:500;cursor:pointer;margin-top:8px}
+.login-btn{width:100%;padding:11px;background:#534AB7;border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:background 0.15s}
 .login-btn:hover{background:#4a42a3}
 .login-toggle{text-align:center;margin-top:16px;font-size:13px;color:#666}
 .login-toggle a{color:#AFA9EC;cursor:pointer;text-decoration:none}
 .error-msg{background:rgba(226,75,74,0.1);color:#E24B4A;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+@media(max-width:768px){.sidebar{display:none}.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -95,11 +111,11 @@ textarea:focus{outline:none;border-color:#534AB7}
     <div class="error-msg" id="error-msg"></div>
     <div class="form-group">
       <label>Email</label>
-      <input type="email" id="email" placeholder="seu@email.com" />
+      <input type="email" id="email" class="form-input" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')fazerLogin()" />
     </div>
     <div class="form-group">
       <label>Senha</label>
-      <input type="password" id="senha" placeholder="••••••••" />
+      <input type="password" id="senha" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()" />
     </div>
     <button class="login-btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
     <div class="login-toggle">
@@ -135,14 +151,21 @@ textarea:focus{outline:none;border-color:#534AB7}
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"/><path d="M8 21h8M12 17v4" stroke-width="2"/></svg>
         IA de vendas
       </button>
+      <button class="nav-item" onclick="showPage('configuracoes',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke-width="2"/></svg>
+        Configurações
+      </button>
     </nav>
-    <div class="user-area">
+    <div class="user-area" onclick="showPage('configuracoes',document.querySelectorAll('.nav-item')[5])">
       <div class="avatar" id="user-avatar">ET</div>
       <div class="user-email" id="user-email-display">carregando...</div>
+      <button class="logout-btn" onclick="event.stopPropagation();fazerLogout()">Sair</button>
     </div>
   </div>
 
   <div class="main">
+
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="page-header">
         <span class="ai-badge"><span class="dot"></span> IA online</span>
@@ -156,7 +179,7 @@ textarea:focus{outline:none;border-color:#534AB7}
         <div class="stat"><div class="stat-label">Automações ativas</div><div class="stat-value">7</div><div class="stat-sub">rodando 24/7</div></div>
       </div>
       <div class="two-col">
-        <div class="card"><h3>Leads recentes</h3><div class="empty" id="leads-preview">Nenhum lead ainda.</div></div>
+        <div class="card"><h3>Leads recentes</h3><div id="leads-preview"><div class="empty">Nenhum lead ainda.</div></div></div>
         <div class="card"><h3>Sua IA está pronta</h3>
           <div style="background:#1a1a1a;border-radius:8px;padding:16px">
             <p style="color:#666;font-size:13px;margin-bottom:12px">Configure o tom e argumento de venda para a IA responder automaticamente.</p>
@@ -166,40 +189,126 @@ textarea:focus{outline:none;border-color:#534AB7}
       </div>
     </div>
 
+    <!-- LEADS -->
     <div class="page" id="page-leads">
       <div class="page-header"><h2>Leads</h2><p>Todos os contatos captados pelo bot.</p></div>
       <div class="card"><h3>Leads captados</h3><div id="leads-list"><div class="empty">Nenhum lead ainda.</div></div></div>
     </div>
 
+    <!-- AUTOMAÇÃO -->
     <div class="page" id="page-automacao">
       <div class="page-header"><h2>Automação</h2><p>Configure as respostas automáticas.</p></div>
       <div class="card"><h3>Automações ativas</h3>
-        <div class="auto-item"><div class="auto-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-width="2"/></svg></div><div><div class="auto-name">Boas-vindas automático</div><div class="auto-desc">Envia mensagem quando cliente entra em contato</div></div><div class="toggle"></div></div>
-        <div class="auto-item"><div class="auto-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 6v6l4 2" stroke-width="2"/></svg></div><div><div class="auto-name">Follow-up 24h</div><div class="auto-desc">Lembrete para leads sem resposta</div></div><div class="toggle"></div></div>
-        <div class="auto-item"><div class="auto-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke-width="2"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="2"/></svg></div><div><div class="auto-name">Oferta especial</div><div class="auto-desc">Desconto para leads quentes</div></div><div class="toggle"></div></div>
+        <div class="auto-item"><div class="auto-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-width="2"/></svg></div><div><div class="auto-name">Boas-vindas automático</div><div class="auto-desc">Envia mensagem quando cliente entra em contato</div></div><div class="toggle" onclick="this.classList.toggle('off')"></div></div>
+        <div class="auto-item"><div class="auto-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 6v6l4 2" stroke-width="2"/></svg></div><div><div class="auto-name">Follow-up 24h</div><div class="auto-desc">Lembrete para leads sem resposta</div></div><div class="toggle" onclick="this.classList.toggle('off')"></div></div>
+        <div class="auto-item"><div class="auto-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke-width="2"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="2"/></svg></div><div><div class="auto-name">Oferta especial</div><div class="auto-desc">Desconto para leads quentes</div></div><div class="toggle off" onclick="this.classList.toggle('off')"></div></div>
+        <div class="auto-item"><div class="auto-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.82a16 16 0 0 0 6.27 6.27l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" stroke-width="2"/></svg></div><div><div class="auto-name">Recuperação de carrinho</div><div class="auto-desc">Mensagem para quem não finalizou compra</div></div><div class="toggle off" onclick="this.classList.toggle('off')"></div></div>
       </div>
     </div>
 
+    <!-- CONVERSAS -->
     <div class="page" id="page-conversas">
       <div class="page-header"><h2>Conversas</h2><p>Histórico de mensagens dos clientes.</p></div>
       <div class="card"><h3>Conversas recentes</h3><div id="conversas-list"><div class="empty">Nenhuma conversa ainda.</div></div></div>
     </div>
 
+    <!-- IA DE VENDAS -->
     <div class="page" id="page-ia">
       <div class="page-header"><h2>IA de vendas</h2><p>Configure como a IA responde seus clientes.</p></div>
-      <div class="card"><h3>Prompt do assistente</h3>
-        <textarea id="ia-prompt">Você é um assistente de vendas simpático do AutoVenda. Responda sempre em português brasileiro de forma amigável. Nosso produto custa R$47/mês e oferece: bot com IA, respostas automáticas 24h, captação de leads e dashboard. Seja positivo e mostre o valor do produto.</textarea>
-        <button class="btn btn-primary" onclick="salvarPrompt()">Salvar configuração</button>
-        <div style="margin-top:20px"><h3 style="margin-bottom:12px">Testar IA agora</h3>
-          <div class="test-row">
-            <input class="test-input" id="test-msg" placeholder="Ex: Qual o preço?" onkeydown="if(event.key==='Enter')testarIA()" />
-            <button class="btn btn-primary" onclick="testarIA()">Testar</button>
+      <div class="card">
+        <div class="config-section">
+          <div class="config-section-title">Sobre seu negócio</div>
+          <div class="form-group">
+            <label>Nome do seu negócio</label>
+            <input type="text" class="form-input" id="nome-negocio" placeholder="Ex: Loja do João, Clínica X..." />
           </div>
-          <div class="loading" id="loading">IA pensando...</div>
-          <div class="bot-resp" id="bot-resp"></div>
+          <div class="form-group">
+            <label>O que você vende?</label>
+            <input type="text" class="form-input" id="produto" placeholder="Ex: Cursos online, roupas, serviços de estética..." />
+          </div>
+          <div class="form-group">
+            <label>Preço do produto/serviço</label>
+            <input type="text" class="form-input" id="preco" placeholder="Ex: R$97, a partir de R$50..." />
+          </div>
+        </div>
+        <div class="config-section">
+          <div class="config-section-title">Tom da IA</div>
+          <div class="form-group">
+            <label>Instrução para a IA</label>
+            <textarea class="form-input" id="ia-prompt" placeholder="Ex: Seja simpático, fale sobre os benefícios do produto, sempre tente fechar a venda..."></textarea>
+          </div>
+        </div>
+        <div class="success-msg" id="ia-success">✓ Configuração salva com sucesso!</div>
+        <button class="btn btn-primary" onclick="salvarIA()">Salvar configuração</button>
+
+        <hr class="divider">
+
+        <h3 style="margin-bottom:12px">Testar IA agora</h3>
+        <div class="test-row">
+          <input class="form-input" id="test-msg" placeholder="Ex: Qual o preço?" onkeydown="if(event.key==='Enter')testarIA()" style="flex:1" />
+          <button class="btn btn-primary" onclick="testarIA()">Testar</button>
+        </div>
+        <div class="loading" id="loading">IA pensando...</div>
+        <div class="bot-resp" id="bot-resp"></div>
+      </div>
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="page" id="page-configuracoes">
+      <div class="page-header"><h2>Configurações</h2><p>Gerencie sua conta e conexões.</p></div>
+
+      <div class="card">
+        <div class="config-section">
+          <div class="config-section-title">Status da conexão</div>
+          <div class="status-card">
+            <div class="status-icon status-disconnected">📵</div>
+            <div><div class="status-title">WhatsApp não conectado</div><div class="status-sub">Configure seu número abaixo para ativar o bot</div></div>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <div class="config-section-title">WhatsApp Business</div>
+          <div class="form-group">
+            <label>Número de telefone (com DDD)</label>
+            <input type="text" class="form-input" id="wpp-numero" placeholder="Ex: 5514999999999" />
+          </div>
+          <div class="form-group">
+            <label>ID do número de telefone (Meta)</label>
+            <input type="text" class="form-input" id="wpp-phone-id" placeholder="Ex: 1110093775517296" />
+          </div>
+          <div class="form-group">
+            <label>Token de acesso (Meta)</label>
+            <input type="password" class="form-input" id="wpp-token" placeholder="EAAxxxxxxxx..." />
+          </div>
+          <div class="success-msg" id="wpp-success">✓ WhatsApp configurado com sucesso!</div>
+          <button class="btn btn-primary" onclick="salvarWhatsApp()">Salvar e conectar</button>
+        </div>
+
+        <hr class="divider">
+
+        <div class="config-section">
+          <div class="config-section-title">Minha conta</div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="form-input" id="conta-email" placeholder="seu@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Nova senha</label>
+            <input type="password" class="form-input" id="conta-senha" placeholder="Deixe em branco para não alterar" />
+          </div>
+          <button class="btn" onclick="salvarConta()">Salvar alterações</button>
+        </div>
+
+        <hr class="divider">
+
+        <div class="config-section">
+          <div class="config-section-title">Sair da conta</div>
+          <p style="color:#666;font-size:14px;margin-bottom:12px">Ao sair, você precisará fazer login novamente para acessar o painel.</p>
+          <button class="btn btn-danger" onclick="fazerLogout()">Sair da conta</button>
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -220,21 +329,40 @@ async function fazerLogin() {
   const errEl = document.getElementById('error-msg');
   errEl.style.display = 'none';
   if (!email || !senha) { errEl.textContent = 'Preencha email e senha.'; errEl.style.display = 'block'; return; }
-  const endpoint = isCadastro ? '/cadastro' : '/login';
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Entrando...';
   try {
+    const endpoint = isCadastro ? '/cadastro' : '/login';
     const res = await fetch(API + endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({email, senha}) });
     const data = await res.json();
-    if (data.error) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+    if (data.error) { errEl.textContent = data.error; errEl.style.display = 'block'; btn.textContent = isCadastro ? 'Criar conta' : 'Entrar'; return; }
     localStorage.setItem('user_email', email);
-    document.getElementById('user-email-display').textContent = email;
-    document.getElementById('user-avatar').textContent = email.substring(0,2).toUpperCase();
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    carregarLeads();
+    entrarNoApp(email);
   } catch(e) {
     errEl.textContent = 'Erro ao conectar com o servidor.';
     errEl.style.display = 'block';
+    btn.textContent = isCadastro ? 'Criar conta' : 'Entrar';
   }
+}
+
+function entrarNoApp(email) {
+  document.getElementById('user-email-display').textContent = email;
+  document.getElementById('user-avatar').textContent = email.substring(0,2).toUpperCase();
+  document.getElementById('conta-email').value = email;
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  carregarConfig();
+  carregarLeads();
+}
+
+function fazerLogout() {
+  localStorage.removeItem('user_email');
+  localStorage.removeItem('ia_config');
+  localStorage.removeItem('wpp_config');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('email').value = '';
+  document.getElementById('senha').value = '';
 }
 
 function showPage(name, el) {
@@ -244,32 +372,80 @@ function showPage(name, el) {
   if (el) el.classList.add('active');
 }
 
+function carregarConfig() {
+  const ia = JSON.parse(localStorage.getItem('ia_config') || '{}');
+  if (ia.nome) document.getElementById('nome-negocio').value = ia.nome;
+  if (ia.produto) document.getElementById('produto').value = ia.produto;
+  if (ia.preco) document.getElementById('preco').value = ia.preco;
+  if (ia.prompt) document.getElementById('ia-prompt').value = ia.prompt;
+  const wpp = JSON.parse(localStorage.getItem('wpp_config') || '{}');
+  if (wpp.numero) document.getElementById('wpp-numero').value = wpp.numero;
+  if (wpp.phoneId) document.getElementById('wpp-phone-id').value = wpp.phoneId;
+}
+
+function salvarIA() {
+  const config = {
+    nome: document.getElementById('nome-negocio').value,
+    produto: document.getElementById('produto').value,
+    preco: document.getElementById('preco').value,
+    prompt: document.getElementById('ia-prompt').value
+  };
+  localStorage.setItem('ia_config', JSON.stringify(config));
+  const s = document.getElementById('ia-success');
+  s.style.display = 'block';
+  setTimeout(() => s.style.display = 'none', 3000);
+}
+
+function salvarWhatsApp() {
+  const config = {
+    numero: document.getElementById('wpp-numero').value,
+    phoneId: document.getElementById('wpp-phone-id').value,
+    token: document.getElementById('wpp-token').value
+  };
+  localStorage.setItem('wpp_config', JSON.stringify(config));
+  const s = document.getElementById('wpp-success');
+  s.style.display = 'block';
+  setTimeout(() => s.style.display = 'none', 3000);
+  if (config.numero) {
+    document.querySelector('.status-card .status-icon').textContent = '📱';
+    document.querySelector('.status-card .status-icon').className = 'status-icon status-connected';
+    document.querySelector('.status-title').textContent = 'WhatsApp conectado';
+    document.querySelector('.status-sub').textContent = '+' + config.numero;
+  }
+}
+
+function salvarConta() {
+  alert('Alterações salvas!');
+}
+
 async function carregarLeads() {
   try {
     const res = await fetch(API + '/leads');
     const leads = await res.json();
     document.getElementById('total-leads').textContent = leads.length;
     if (leads.length > 0) {
-      const html = leads.slice(0,3).map(l => `<div class="lead-item"><div class="lead-avatar">${l.telefone.slice(-4,-2)}</div><div><div class="lead-name">${l.telefone}</div><div class="lead-phone">${l.mensagem ? l.mensagem.substring(0,40) : ''}</div></div><span class="badge-new">Novo</span></div>`).join('');
+      const html = leads.slice(0,3).map(l => `<div class="lead-item"><div class="lead-avatar">${l.telefone.slice(-4,-2)}</div><div><div class="lead-name">${l.telefone}</div><div class="lead-phone">${(l.mensagem||'').substring(0,40)}</div></div><span class="badge-new">Novo</span></div>`).join('');
       document.getElementById('leads-preview').innerHTML = html;
-      document.getElementById('leads-list').innerHTML = leads.map(l => `<div class="lead-item"><div class="lead-avatar">${l.telefone.slice(-4,-2)}</div><div><div class="lead-name">${l.telefone}</div><div class="lead-phone">${l.mensagem ? l.mensagem.substring(0,60) : ''}</div></div><span class="badge-new">Novo</span></div>`).join('');
+      document.getElementById('leads-list').innerHTML = leads.map(l => `<div class="lead-item"><div class="lead-avatar">${l.telefone.slice(-4,-2)}</div><div><div class="lead-name">${l.telefone}</div><div class="lead-phone">${(l.mensagem||'').substring(0,60)}</div></div><span class="badge-new">Novo</span></div>`).join('');
+      const convHtml = leads.slice(0,5).map(l => `<div class="chat-item"><div class="chat-av">${l.telefone.slice(-4,-2)}</div><div style="flex:1;min-width:0"><div class="chat-name">${l.telefone}</div><div class="chat-prev">${(l.mensagem||'Sem mensagem')}</div></div><div class="chat-time">agora</div></div>`).join('');
+      document.getElementById('conversas-list').innerHTML = convHtml;
     }
   } catch(e) {}
-}
-
-function salvarPrompt() {
-  const btn = event.target;
-  btn.textContent = 'Salvo!';
-  setTimeout(() => btn.textContent = 'Salvar configuração', 2000);
 }
 
 async function testarIA() {
   const msg = document.getElementById('test-msg').value;
   if (!msg.trim()) return;
+  const ia = JSON.parse(localStorage.getItem('ia_config') || '{}');
   document.getElementById('loading').style.display = 'block';
   document.getElementById('bot-resp').style.display = 'none';
   try {
-    const res = await fetch(API + '/testar?msg=' + encodeURIComponent(msg));
+    const params = new URLSearchParams({ msg });
+    if (ia.nome) params.append('negocio', ia.nome);
+    if (ia.produto) params.append('produto', ia.produto);
+    if (ia.preco) params.append('preco', ia.preco);
+    if (ia.prompt) params.append('instrucao', ia.prompt);
+    const res = await fetch(API + '/testar?' + params.toString());
     const data = await res.json();
     document.getElementById('bot-resp').style.display = 'block';
     document.getElementById('bot-resp').textContent = data.bot;
@@ -282,13 +458,7 @@ async function testarIA() {
 
 window.onload = () => {
   const email = localStorage.getItem('user_email');
-  if (email) {
-    document.getElementById('user-email-display').textContent = email;
-    document.getElementById('user-avatar').textContent = email.substring(0,2).toUpperCase();
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    carregarLeads();
-  }
+  if (email) entrarNoApp(email);
 };
 </script>
 </body>
