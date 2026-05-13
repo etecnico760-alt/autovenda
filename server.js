@@ -89,7 +89,7 @@ async function chamarGroq(mensagem) {
 
 async function enviarWhatsApp(telefone, mensagem) {
   const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = "1110093775517296";
+  const phoneId = process.env.WHATSAPP_PHONE_ID || "1151104828086519";
   await fetch(`https://graph.facebook.com/v18.0/${phoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
