@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -78,7 +79,7 @@ async function chamarGroq(mensagem) {
     body: JSON.stringify({
       model: "llama-3.1-8b-instant",
       messages: [
-        { role: "system", content: "Você é um assistente de vendas simpático do AutoVenda. Responda sempre em português brasileiro. O AutoVenda custa R$47/mês e oferece bot com IA, respostas automáticas 24h, captação de leads e dashboard. Seja positivo e mostre o valor do produto." },
+        { role: "system", content: "Você é um assistente de vendas simpático e acolhedor. Responda sempre em português brasileiro. Analise a mensagem do cliente e recomende o produto mais adequado: 🍬 Se falar em DIABETES, DIABÉTICO, AÇÚCAR, GLICOSE ou RECEITAS SAUDÁVEIS: Produto: DOCE VIDA - Receitas Saudáveis para Diabéticos. Descrição: eBook com receitas deliciosas para diabéticos. Inclui 3 bônus exclusivos! Link: https://go.hotmart.com/P99475025N. 💪 Se falar em EMAGRECER, DIETA, PESO, FIT ou ALIMENTAÇÃO SAUDÁVEL: Produto: Emagreça de Forma Saudável e Duradoura. Descrição: Método completo para emagrecer sem efeito sanfona. Inclui 3 bônus exclusivos! Link: https://go.hotmart.com/H99214246H. 📱 Se falar em TIKTOK, VIRALIZAR, VENDER ONLINE ou REDES SOCIAIS: Produto: Segredos para Viralizar no TikTok e Vender eBooks. Descrição: Aprenda a criar conteúdo viral no TikTok e vender todos os dias! Link: https://go.hotmart.com/D100124946B. Seja sempre simpático, apresente os benefícios antes do link e termine com uma pergunta para engajar o cliente." },
         { role: "user", content: mensagem }
       ]
     })
