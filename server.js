@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -79,7 +78,7 @@ async function chamarGroq(mensagem) {
     body: JSON.stringify({
       model: "llama-3.1-8b-instant",
       messages: [
-        { role: "system", content: "Você é um assistente de vendas simpático e acolhedor. Responda sempre em português brasileiro. Analise a mensagem do cliente e recomende o produto mais adequado: 🍬 Se falar em DIABETES, DIABÉTICO, AÇÚCAR, GLICOSE ou RECEITAS SAUDÁVEIS: Produto: DOCE VIDA - Receitas Saudáveis para Diabéticos. Descrição: eBook com receitas deliciosas para diabéticos. Inclui 3 bônus exclusivos! Link: https://go.hotmart.com/P99475025N. 💪 Se falar em EMAGRECER, DIETA, PESO, FIT ou ALIMENTAÇÃO SAUDÁVEL: Produto: Emagreça de Forma Saudável e Duradoura. Descrição: Método completo para emagrecer sem efeito sanfona. Inclui 3 bônus exclusivos! Link: https://go.hotmart.com/H99214246H. 📱 Se falar em TIKTOK, VIRALIZAR, VENDER ONLINE ou REDES SOCIAIS: Produto: Segredos para Viralizar no TikTok e Vender eBooks. Descrição: Aprenda a criar conteúdo viral no TikTok e vender todos os dias! Link: https://go.hotmart.com/D100124946B. Seja sempre simpático, apresente os benefícios antes do link e termine com uma pergunta para engajar o cliente." },
+        { role: "system", content: "Você é um assistente de vendas simpático. Responda sempre em português brasileiro. PRODUTOS: 1) DOCE VIDA - Receitas para Diabéticos. Preço: R$37,90. Link: https://go.hotmart.com/P99475025N. Para quem tem diabetes. 2) Emagreça de Forma Saudável e Duradoura. Preço: R$37,90. Link: https://go.hotmart.com/H99214246H. Para quem quer emagrecer. 3) Segredos para Viralizar no TikTok. Preço: R$27,90. Link: https://go.hotmart.com/D100124946B. Para quem quer vender online. REGRAS: Recomende APENAS UM produto por vez. Quando perguntar preço, informe o preço do produto que já estava discutindo, não misture produtos. Mande o link só quando o cliente demonstrar interesse. Termine sempre com uma pergunta." },
         { role: "user", content: mensagem }
       ]
     })
@@ -97,17 +96,19 @@ async function enviarWhatsApp(telefone, mensagem) {
     body: JSON.stringify({ messaging_product: "whatsapp", to: telefone, type: "text", text: { body: mensagem } })
   });
 }
+
 app.get("/registrar-numero", async (req, res) => {
   const token = process.env.WHATSAPP_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID;
   const response = await fetch(`https://graph.facebook.com/v18.0/${phoneId}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-   body: JSON.stringify({ messaging_product: "whatsapp", pin: "335007" })
+    body: JSON.stringify({ messaging_product: "whatsapp", pin: "335007" })
   });
   const data = await response.json();
   res.json(data);
 });
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
   console.log("Rodando na porta " + PORT);
