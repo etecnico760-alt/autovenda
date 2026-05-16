@@ -103,7 +103,7 @@ app.get("/registrar-numero", async (req, res) => {
   const response = await fetch(`https://graph.facebook.com/v18.0/${phoneId}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-    body: JSON.stringify({ messaging_product: "whatsapp", pin: "000000" })
+   body: JSON.stringify({ messaging_product: "whatsapp", pin: "335007" })
   });
   const data = await response.json();
   res.json(data);
