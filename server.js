@@ -97,7 +97,17 @@ async function enviarWhatsApp(telefone, mensagem) {
     body: JSON.stringify({ messaging_product: "whatsapp", to: telefone, type: "text", text: { body: mensagem } })
   });
 }
-
+app.get("/registrar-numero", async (req, res) => {
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_ID;
+  const response = await fetch(`https://graph.facebook.com/v18.0/${phoneId}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+    body: JSON.stringify({ messaging_product: "whatsapp", pin: "000000" })
+  });
+  const data = await response.json();
+  res.json(data);
+});
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
   console.log("Rodando na porta " + PORT);
