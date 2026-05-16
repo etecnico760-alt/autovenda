@@ -13,6 +13,9 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
+// Memória das conversas
+const conversas = {};
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -53,7 +56,7 @@ app.post("/webhook", async (req, res) => {
       const texto = msg.text.body;
       const telefone = msg.from;
       await supabase.from("leads").insert({ telefone, mensagem: texto });
-      const resposta = await chamarGroq(texto);
+      const resposta = await chamarGroq(telefone, texto);
       await enviarWhatsApp(telefone, resposta);
     }
   }
@@ -63,28 +66,44 @@ app.post("/webhook", async (req, res) => {
 app.get("/testar", async (req, res) => {
   const mensagem = req.query.msg || "Olá!";
   try {
-    const resposta = await chamarGroq(mensagem);
+    const resposta = await chamarGroq("teste", mensagem);
     res.json({ voce: mensagem, bot: resposta });
   } catch (err) {
     res.json({ voce: mensagem, bot: "Erro: " + err.message });
   }
 });
 
-async function chamarGroq(mensagem) {
+async function chamarGroq(telefone, mensagem) {
   const apiKey = process.env.GROQ_API_KEY;
+
+  if (!conversas[telefone]) {
+    conversas[telefone] = [];
+  }
+
+  conversas[telefone].push({ role: "user", content: mensagem });
+
+  if (conversas[telefone].length > 20) {
+    conversas[telefone] = conversas[telefone].slice(-20);
+  }
+
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
     body: JSON.stringify({
       model: "llama-3.1-8b-instant",
       messages: [
-        { role: "system", content: "Você é um assistente de vendas simpático. Responda sempre em português brasileiro. PRODUTOS: 1) DOCE VIDA - Receitas para Diabéticos. Preço: R$37,90. Link: https://go.hotmart.com/P99475025N. Para quem tem diabetes. 2) Emagreça de Forma Saudável e Duradoura. Preço: R$37,90. Link: https://go.hotmart.com/H99214246H. Para quem quer emagrecer. 3) Segredos para Viralizar no TikTok. Preço: R$27,90. Link: https://go.hotmart.com/D100124946B. Para quem quer vender online. REGRAS: Recomende APENAS UM produto por vez. Quando perguntar preço, informe o preço do produto que já estava discutindo, não misture produtos. Mande o link só quando o cliente demonstrar interesse. Termine sempre com uma pergunta." },
-        { role: "user", content: mensagem }
+        { role: "system", content: "Você é um assistente de vendas simpático. Responda sempre em português brasileiro. PRODUTOS: 1) DOCE VIDA - Receitas para Diabéticos. Preço: R$37,90. Link: https://go.hotmart.com/P99475025N. Para quem tem diabetes. 2) Emagreça de Forma Saudável e Duradoura. Preço: R$37,90. Link: https://go.hotmart.com/H99214246H. Para quem quer emagrecer. 3) Segredos para Viralizar no TikTok. Preço: R$27,90. Link: https://go.hotmart.com/D100124946B. Para quem quer vender online. REGRAS: Recomende APENAS UM produto por vez. Não fale o preço logo de cara — primeiro apresente os benefícios. Só fale o preço quando o cliente perguntar. Mantenha o foco no produto que já estava discutindo. Mande o link só quando o cliente demonstrar interesse real. Termine sempre com uma pergunta." },
+        ...conversas[telefone]
       ]
     })
   });
+
   const data = await response.json();
-  return data.choices?.[0]?.message?.content || "Sem resposta";
+  const resposta = data.choices?.[0]?.message?.content || "Sem resposta";
+
+  conversas[telefone].push({ role: "assistant", content: resposta });
+
+  return resposta;
 }
 
 async function enviarWhatsApp(telefone, mensagem) {
