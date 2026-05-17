@@ -13,7 +13,6 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
-// Memória das conversas
 const conversas = {};
 
 app.get("/", (req, res) => {
@@ -73,18 +72,66 @@ app.get("/testar", async (req, res) => {
   }
 });
 
+function detectarProduto(mensagem) {
+  const msg = mensagem.toLowerCase();
+  if (msg.includes("diabet") || msg.includes("açúcar") || msg.includes("glicose") || msg.includes("doce vida")) {
+    return {
+      nome: "DOCE VIDA - Receitas para Diabéticos",
+      preco: "R$37,90",
+      link: "https://go.hotmart.com/P99475025N",
+      descricao: "eBook com receitas deliciosas e saudáveis para diabéticos. Inclui 3 bônus exclusivos!"
+    };
+  }
+  if (msg.includes("tiktok") || msg.includes("viralizar") || msg.includes("vender online") || msg.includes("renda")) {
+    return {
+      nome: "Segredos para Viralizar no TikTok",
+      preco: "R$27,90",
+      link: "https://go.hotmart.com/D100124946B",
+      descricao: "Aprenda a criar conteúdo viral no TikTok e vender todos os dias!"
+    };
+  }
+  return {
+    nome: "Emagreça de Forma Saudável e Duradoura",
+    preco: "R$37,90",
+    link: "https://go.hotmart.com/H99214246H",
+    descricao: "Método completo para emagrecer sem efeito sanfona. Inclui 3 bônus exclusivos!"
+  };
+}
+
 async function chamarGroq(telefone, mensagem) {
   const apiKey = process.env.GROQ_API_KEY;
 
   if (!conversas[telefone]) {
-    conversas[telefone] = [];
+    const produto = detectarProduto(mensagem);
+    conversas[telefone] = {
+      produto,
+      historico: []
+    };
   }
 
-  conversas[telefone].push({ role: "user", content: mensagem });
+  const { produto, historico } = conversas[telefone];
 
-  if (conversas[telefone].length > 20) {
-    conversas[telefone] = conversas[telefone].slice(-20);
+  historico.push({ role: "user", content: mensagem });
+
+  if (historico.length > 20) {
+    conversas[telefone].historico = historico.slice(-20);
   }
+
+  const systemPrompt = `Você é um vendedor simpático e focado. Responda SEMPRE em português brasileiro.
+
+VOCÊ SÓ PODE VENDER ESTE PRODUTO AGORA:
+Nome: ${produto.nome}
+Preço: ${produto.preco}
+Descrição: ${produto.descricao}
+Link: ${produto.link}
+
+REGRAS ABSOLUTAS:
+- Fale APENAS sobre este produto, nunca mencione outros produtos
+- Não fale o preço logo de cara, primeiro apresente os benefícios
+- Só informe o preço quando o cliente perguntar
+- Só mande o link quando o cliente disser que quer comprar
+- Termine sempre com uma pergunta para engajar
+- Seja simpático e motivador`;
 
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
@@ -92,8 +139,8 @@ async function chamarGroq(telefone, mensagem) {
     body: JSON.stringify({
       model: "llama-3.1-8b-instant",
       messages: [
-        { role: "system", content: "Você é um assistente de vendas simpático. Responda sempre em português brasileiro. PRODUTOS: 1) DOCE VIDA - Receitas para Diabéticos. Preço: R$37,90. Link: https://go.hotmart.com/P99475025N. Para quem tem diabetes. 2) Emagreça de Forma Saudável e Duradoura. Preço: R$37,90. Link: https://go.hotmart.com/H99214246H. Para quem quer emagrecer. 3) Segredos para Viralizar no TikTok. Preço: R$27,90. Link: https://go.hotmart.com/D100124946B. Para quem quer vender online. REGRAS: Recomende APENAS UM produto por vez. Não fale o preço logo de cara — primeiro apresente os benefícios. Só fale o preço quando o cliente perguntar. Mantenha o foco no produto que já estava discutindo. Mande o link só quando o cliente demonstrar interesse real. Termine sempre com uma pergunta." },
-        ...conversas[telefone]
+        { role: "system", content: systemPrompt },
+        ...conversas[telefone].historico
       ]
     })
   });
@@ -101,7 +148,7 @@ async function chamarGroq(telefone, mensagem) {
   const data = await response.json();
   const resposta = data.choices?.[0]?.message?.content || "Sem resposta";
 
-  conversas[telefone].push({ role: "assistant", content: resposta });
+  conversas[telefone].historico.push({ role: "assistant", content: resposta });
 
   return resposta;
 }
