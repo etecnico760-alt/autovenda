@@ -33,7 +33,7 @@ app.post("/cadastro", async (req, res) => {
 
 app.get("/leads", async (req, res) => {
   const { data, error } = await supabase.from("leads").select("*").order("id", { ascending: false }).limit(50);
-  if (error) return res.json([]);
+  if (error) { console.log("Erro leads:", error); return res.json([]); }
   res.json(data);
 });
 
@@ -48,13 +48,16 @@ app.get("/webhook", (req, res) => {
 });
 
 app.post("/webhook", async (req, res) => {
+  console.log("Webhook recebido:", JSON.stringify(req.body));
   const body = req.body;
   if (body.object === "whatsapp_business_account") {
     const msg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     if (msg && msg.type === "text") {
       const texto = msg.text.body;
       const telefone = msg.from;
-      await supabase.from("leads").insert({ telefone, mensagem: texto });
+      console.log("Mensagem de", telefone, ":", texto);
+      const { error } = await supabase.from("leads").insert({ telefone, mensagem: texto });
+      if (error) console.log("Erro Supabase:", error);
       const resposta = await chamarGroq(telefone, texto);
       await enviarWhatsApp(telefone, resposta);
     }
@@ -103,19 +106,12 @@ async function chamarGroq(telefone, mensagem) {
 
   if (!conversas[telefone]) {
     const produto = detectarProduto(mensagem);
-    conversas[telefone] = {
-      produto,
-      historico: []
-    };
+    conversas[telefone] = { produto, historico: [] };
   }
 
   const { produto, historico } = conversas[telefone];
-
   historico.push({ role: "user", content: mensagem });
-
-  if (historico.length > 20) {
-    conversas[telefone].historico = historico.slice(-20);
-  }
+  if (historico.length > 20) conversas[telefone].historico = historico.slice(-20);
 
   const systemPrompt = `Você é um vendedor simpático e focado. Responda SEMPRE em português brasileiro.
 
@@ -147,9 +143,7 @@ REGRAS ABSOLUTAS:
 
   const data = await response.json();
   const resposta = data.choices?.[0]?.message?.content || "Sem resposta";
-
   conversas[telefone].historico.push({ role: "assistant", content: resposta });
-
   return resposta;
 }
 
