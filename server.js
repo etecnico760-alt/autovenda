@@ -1,19 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const { createClient } = require("@supabase/supabase-js");
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-);
-
 const conversas = {};
+const leads = [];
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
@@ -31,10 +26,8 @@ app.post("/cadastro", async (req, res) => {
   res.json({ success: true });
 });
 
-app.get("/leads", async (req, res) => {
-  const { data, error } = await supabase.from("leads").select("*").order("id", { ascending: false }).limit(50);
-  if (error) { console.log("Erro leads:", error); return res.json([]); }
-  res.json(data);
+app.get("/leads", (req, res) => {
+  res.json(leads);
 });
 
 app.get("/webhook", (req, res) => {
@@ -48,7 +41,7 @@ app.get("/webhook", (req, res) => {
 });
 
 app.post("/webhook", async (req, res) => {
-  console.log("Webhook recebido:", JSON.stringify(req.body));
+  console.log("Webhook recebido!");
   const body = req.body;
   if (body.object === "whatsapp_business_account") {
     const msg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
@@ -56,8 +49,7 @@ app.post("/webhook", async (req, res) => {
       const texto = msg.text.body;
       const telefone = msg.from;
       console.log("Mensagem de", telefone, ":", texto);
-      const { error } = await supabase.from("leads").insert({ telefone, mensagem: texto });
-      if (error) console.log("Erro Supabase:", error);
+      leads.push({ id: leads.length + 1, telefone, mensagem: texto });
       const resposta = await chamarGroq(telefone, texto);
       await enviarWhatsApp(telefone, resposta);
     }
@@ -156,18 +148,6 @@ async function enviarWhatsApp(telefone, mensagem) {
     body: JSON.stringify({ messaging_product: "whatsapp", to: telefone, type: "text", text: { body: mensagem } })
   });
 }
-
-app.get("/registrar-numero", async (req, res) => {
-  const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
-  const response = await fetch(`https://graph.facebook.com/v18.0/${phoneId}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-    body: JSON.stringify({ messaging_product: "whatsapp", pin: "335007" })
-  });
-  const data = await response.json();
-  res.json(data);
-});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
