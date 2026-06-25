@@ -69,6 +69,18 @@ app.get("/testar", async (req, res) => {
 
 function detectarProduto(mensagem) {
   const msg = mensagem.toLowerCase();
+
+  if (msg.includes("bíblia") || msg.includes("biblia") || msg.includes("devocional") ||
+      msg.includes("ferida") || msg.includes("feridas") || msg.includes("curad") ||
+      msg.includes("cura emocional") || msg.includes("deus") || msg.includes("restaura")) {
+    return {
+      nome: "Feridas Que Deus Vê: 21 Dias de Restauração",
+      preco: "R$9,90",
+      link: "https://kiwify.app/e11dvCH",
+      descricao: "Devocional de 21 dias para mulheres que carregam dores que ninguém vê, mas Deus vê. Inclui versículo, reflexão e oração guiada para cada dia, além de um bônus de 7 declarações de identidade em Cristo."
+    };
+  }
+
   if (msg.includes("diabet") || msg.includes("açúcar") || msg.includes("glicose") || msg.includes("doce vida")) {
     return {
       nome: "DOCE VIDA - Receitas para Diabéticos",
@@ -77,6 +89,7 @@ function detectarProduto(mensagem) {
       descricao: "eBook com receitas deliciosas e saudáveis para diabéticos. Inclui 3 bônus exclusivos!"
     };
   }
+
   if (msg.includes("tiktok") || msg.includes("viralizar") || msg.includes("vender online") || msg.includes("renda")) {
     return {
       nome: "Segredos para Viralizar no TikTok",
@@ -85,6 +98,7 @@ function detectarProduto(mensagem) {
       descricao: "Aprenda a criar conteúdo viral no TikTok e vender todos os dias!"
     };
   }
+
   return {
     nome: "Emagreça de Forma Saudável e Duradoura",
     preco: "R$37,90",
@@ -119,7 +133,8 @@ REGRAS ABSOLUTAS:
 - Só informe o preço quando o cliente perguntar
 - Só mande o link quando o cliente disser que quer comprar
 - Termine sempre com uma pergunta para engajar
-- Seja simpático e motivador`;
+- Seja simpático e motivador
+- Se o produto for o devocional bíblico, use um tom acolhedor e espiritual, sem ser exagerado`;
 
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
