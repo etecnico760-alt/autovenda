@@ -70,9 +70,21 @@ app.get("/testar", async (req, res) => {
 function detectarProduto(mensagem) {
   const msg = mensagem.toLowerCase();
 
-  if (msg.includes("bíblia") || msg.includes("biblia") || msg.includes("devocional") ||
-      msg.includes("ferida") || msg.includes("feridas") || msg.includes("curad") ||
-      msg.includes("cura emocional") || msg.includes("deus") || msg.includes("restaura")) {
+  // Produto: Segredos e Curiosidades Ocultas da Bíblia
+  if (msg.includes("curiosidades") || msg.includes("segredos") || msg.includes("biblia") || msg.includes("bíblia")) {
+    return {
+      nome: "Segredos e Curiosidades Ocultas da Bíblia",
+      preco: "R$19,90",
+      link: "https://kiwify.app/PmzGa2h",
+      descricao: "Descubra segredos e curiosidades que a maioria das pessoas nunca soube sobre a Bíblia. Conteúdo revelador e fascinante para quem quer aprofundar sua fé e conhecimento bíblico."
+    };
+  }
+
+  // Produto: Devocional Feridas Que Deus Vê
+  if (msg.includes("devocional") || msg.includes("ferida") || msg.includes("feridas") ||
+      msg.includes("curad") || msg.includes("cura emocional") || msg.includes("deus") ||
+      msg.includes("restaura") || msg.includes("paz") || msg.includes("companhia") ||
+      msg.includes("libertar") || msg.includes("valor")) {
     return {
       nome: "Feridas Que Deus Vê: 21 Dias de Restauração",
       preco: "R$9,90",
@@ -134,7 +146,7 @@ REGRAS ABSOLUTAS:
 - Só mande o link quando o cliente disser que quer comprar
 - Termine sempre com uma pergunta para engajar
 - Seja simpático e motivador
-- Se o produto for o devocional bíblico, use um tom acolhedor e espiritual, sem ser exagerado`;
+- Se o produto for bíblico (devocional ou curiosidades), use um tom acolhedor e espiritual, sem ser exagerado`;
 
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
