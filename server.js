@@ -1,8 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const app = express();
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
@@ -43,17 +43,22 @@ app.get("/webhook", (req, res) => {
 app.post("/webhook", async (req, res) => {
   console.log("Webhook recebido!");
   const body = req.body;
+
   if (body.object === "whatsapp_business_account") {
     const msg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+
     if (msg && msg.type === "text") {
       const texto = msg.text.body;
       const telefone = msg.from;
+
       console.log("Mensagem de", telefone, ":", texto);
       leads.push({ id: leads.length + 1, telefone, mensagem: texto });
+
       const resposta = await chamarGroq(telefone, texto);
       await enviarWhatsApp(telefone, resposta);
     }
   }
+
   res.sendStatus(200);
 });
 
@@ -111,6 +116,17 @@ function detectarProduto(mensagem) {
     };
   }
 
+  // Produto: ZenFit Caps (afiliado Braip)
+  if (msg.includes("zenfit") || msg.includes("colageno") || msg.includes("colágeno") ||
+      msg.includes("peptideo") || msg.includes("peptídeo")) {
+    return {
+      nome: "ZenFit Caps",
+      preco: "a partir de R$297,00",
+      link: "https://saude-beleza.site/zenfitcaps/?pv=prodzxk5&af=afilxydg7m",
+      descricao: "Suplemento à base de peptídeos bioativos e colágeno hidrolisado tipo 2 que atua no sinal de saciedade do corpo, reduzindo a fome e o inchaço sem estimulantes. Ajuda a emagrecer de forma natural, sem dieta restritiva ou efeito rebote. Disponível em kits (2, 3 ou 5 caixas) com condições especiais direto da fábrica."
+    };
+  }
+
   return {
     nome: "Emagreça de Forma Saudável e Duradoura",
     preco: "R$37,90",
@@ -162,6 +178,7 @@ REGRAS ABSOLUTAS:
 
   const data = await response.json();
   const resposta = data.choices?.[0]?.message?.content || "Sem resposta";
+
   conversas[telefone].historico.push({ role: "assistant", content: resposta });
   return resposta;
 }
@@ -169,6 +186,7 @@ REGRAS ABSOLUTAS:
 async function enviarWhatsApp(telefone, mensagem) {
   const token = process.env.WHATSAPP_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID || "1151104828086519";
+
   await fetch(`https://graph.facebook.com/v18.0/${phoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
