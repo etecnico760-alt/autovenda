@@ -8,7 +8,35 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 const conversas = {};
-const leads = [];
+
+const SUPABASE_URL = "https://ckwyxmdfhwcztkrbbnph.supabase.co";
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+
+async function salvarLead(telefone, mensagem, produto) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify({ telefone, mensagem, produto })
+    });
+  } catch (err) {
+    console.error("Erro ao salvar lead:", err.message);
+  }
+}
+
+async function buscarLeads() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/leads?select=*&order=created_at.desc`, {
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  return await res.json();
+}
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
@@ -26,8 +54,13 @@ app.post("/cadastro", async (req, res) => {
   res.json({ success: true });
 });
 
-app.get("/leads", (req, res) => {
-  res.json(leads);
+app.get("/leads", async (req, res) => {
+  try {
+    const leads = await buscarLeads();
+    res.json(leads);
+  } catch (err) {
+    res.json({ error: err.message });
+  }
 });
 
 app.get("/webhook", (req, res) => {
@@ -52,7 +85,8 @@ app.post("/webhook", async (req, res) => {
       const telefone = msg.from;
 
       console.log("Mensagem de", telefone, ":", texto);
-      leads.push({ id: leads.length + 1, telefone, mensagem: texto });
+      const produto = detectarProduto(texto);
+      await salvarLead(telefone, texto, produto.nome);
 
       const resposta = await chamarGroq(telefone, texto);
       await enviarWhatsApp(telefone, resposta);
@@ -98,6 +132,7 @@ function detectarProduto(mensagem) {
     };
   }
 
+  // Produto: DOCE VIDA
   if (msg.includes("diabet") || msg.includes("açúcar") || msg.includes("glicose") || msg.includes("doce vida")) {
     return {
       nome: "DOCE VIDA - Receitas para Diabéticos",
@@ -107,6 +142,7 @@ function detectarProduto(mensagem) {
     };
   }
 
+  // Produto: TikTok
   if (msg.includes("tiktok") || msg.includes("viralizar") || msg.includes("vender online") || msg.includes("renda")) {
     return {
       nome: "Segredos para Viralizar no TikTok",
@@ -116,7 +152,7 @@ function detectarProduto(mensagem) {
     };
   }
 
-  // Produto: ZenFit Caps (afiliado Braip)
+  // Produto: ZenFit Caps
   if (msg.includes("zenfit") || msg.includes("colageno") || msg.includes("colágeno") ||
       msg.includes("peptideo") || msg.includes("peptídeo")) {
     return {
@@ -127,6 +163,7 @@ function detectarProduto(mensagem) {
     };
   }
 
+  // Produto padrão
   return {
     nome: "Emagreça de Forma Saudável e Duradoura",
     preco: "R$37,90",
