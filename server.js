@@ -109,7 +109,6 @@ app.get("/testar", async (req, res) => {
 function detectarProduto(mensagem) {
   const msg = mensagem.toLowerCase();
 
-  // Produto: Segredos e Curiosidades Ocultas da Bíblia
   if (msg.includes("curiosidades") || msg.includes("segredos") || msg.includes("biblia") || msg.includes("bíblia")) {
     return {
       nome: "Segredos e Curiosidades Ocultas da Bíblia",
@@ -119,7 +118,6 @@ function detectarProduto(mensagem) {
     };
   }
 
-  // Produto: Devocional Feridas Que Deus Vê
   if (msg.includes("devocional") || msg.includes("ferida") || msg.includes("feridas") ||
       msg.includes("curad") || msg.includes("cura emocional") || msg.includes("deus") ||
       msg.includes("restaura") || msg.includes("paz") || msg.includes("companhia") ||
@@ -132,7 +130,6 @@ function detectarProduto(mensagem) {
     };
   }
 
-  // Produto: DOCE VIDA
   if (msg.includes("diabet") || msg.includes("açúcar") || msg.includes("glicose") || msg.includes("doce vida")) {
     return {
       nome: "DOCE VIDA - Receitas para Diabéticos",
@@ -142,7 +139,6 @@ function detectarProduto(mensagem) {
     };
   }
 
-  // Produto: TikTok
   if (msg.includes("tiktok") || msg.includes("viralizar") || msg.includes("vender online") || msg.includes("renda")) {
     return {
       nome: "Segredos para Viralizar no TikTok",
@@ -152,7 +148,6 @@ function detectarProduto(mensagem) {
     };
   }
 
-  // Produto: ZenFit Caps
   if (msg.includes("zenfit") || msg.includes("colageno") || msg.includes("colágeno") ||
       msg.includes("peptideo") || msg.includes("peptídeo")) {
     return {
@@ -163,7 +158,6 @@ function detectarProduto(mensagem) {
     };
   }
 
-  // Produto padrão
   return {
     nome: "Emagreça de Forma Saudável e Duradoura",
     preco: "R$37,90",
