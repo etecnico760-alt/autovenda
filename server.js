@@ -89,8 +89,12 @@ app.post("/webhook", async (req, res) => {
       console.log("Mensagem de", telefone, ":", texto);
       const produto = detectarProduto(texto);
 
-      // Se é primeira mensagem, inicia conversa com produto detectado
+      // Inicia conversa ou troca de produto se cliente mandar palavra-chave diferente
       if (!conversas[telefone]) {
+        conversas[telefone] = { produto, historico: [] };
+      } else if (produto.nome !== conversas[telefone].produto.nome && produto.nome !== "Emagreça de Forma Saudável e Duradoura") {
+        // Cliente pediu produto diferente — reinicia conversa
+        console.log("Trocando produto para:", produto.nome);
         conversas[telefone] = { produto, historico: [] };
       }
 
