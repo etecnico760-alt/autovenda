@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 app.use(cors());
@@ -8,36 +9,26 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 const conversas = {};
+const LEADS_FILE = path.join(__dirname, "leads.json");
 
-const SUPABASE_URL = "https://ckwyxmdfhwcztkrbbnph.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrd3l4bWRmaHdjenRrcmJibnBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MzYwNTYsImV4cCI6MjA5MzUxMjA1Nn0.Vybkz6tgu2BBhkmjYG3LU9SuCX-LdVTwxd1PE_UaH-E";
-
-async function salvarLead(telefone, mensagem, produto) {
+function carregarLeads() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_KEY,
-        "Authorization": `Bearer ${SUPABASE_KEY}`,
-        "Prefer": "return=minimal"
-      },
-      body: JSON.stringify({ telefone, mensagem, produto })
-    });
-    console.log("Lead salvo, status:", res.status);
+    if (fs.existsSync(LEADS_FILE)) {
+      return JSON.parse(fs.readFileSync(LEADS_FILE, "utf8"));
+    }
+  } catch (e) {}
+  return [];
+}
+
+function salvarLeadLocal(telefone, mensagem, produto) {
+  try {
+    const leads = carregarLeads();
+    leads.push({ id: leads.length + 1, telefone, mensagem, produto, data: new Date().toISOString() });
+    fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2));
+    console.log("Lead salvo:", telefone, produto);
   } catch (err) {
     console.error("Erro ao salvar lead:", err.message);
   }
-}
-
-async function buscarLeads() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/leads?select=*&order=created_at.desc`, {
-    headers: {
-      "apikey": SUPABASE_KEY,
-      "Authorization": `Bearer ${SUPABASE_KEY}`
-    }
-  });
-  return await res.json();
 }
 
 app.get("/", (req, res) => {
@@ -56,13 +47,8 @@ app.post("/cadastro", async (req, res) => {
   res.json({ success: true });
 });
 
-app.get("/leads", async (req, res) => {
-  try {
-    const leads = await buscarLeads();
-    res.json(leads);
-  } catch (err) {
-    res.json({ error: err.message });
-  }
+app.get("/leads", (req, res) => {
+  res.json(carregarLeads());
 });
 
 app.get("/webhook", (req, res) => {
@@ -88,7 +74,7 @@ app.post("/webhook", async (req, res) => {
 
       console.log("Mensagem de", telefone, ":", texto);
       const produto = detectarProduto(texto);
-      await salvarLead(telefone, texto, produto.nome);
+      salvarLeadLocal(telefone, texto, produto.nome);
 
       const resposta = await chamarGroq(telefone, texto);
       await enviarWhatsApp(telefone, resposta);
