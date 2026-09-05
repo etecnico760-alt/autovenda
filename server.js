@@ -11,16 +11,13 @@ app.use(express.static(path.join(__dirname)));
 const conversas = {};
 const LEADS_FILE = path.join(__dirname, "leads.json");
 
-// Modelos em ordem de preferência
 const MODELOS_GROQ = [
   "openai/gpt-oss-20b",
   "openai/gpt-oss-120b",
   "qwen/qwen3.6-27b",
   "meta-llama/llama-4-scout-17b-16e-instruct",
   "llama-3.3-70b-versatile",
-  "llama3-70b-8192",
-  "llama3-8b-8192",
-  "llama-3.1-8b-instant"
+  "llama3-70b-8192"
 ];
 
 let modeloAtual = MODELOS_GROQ[0];
@@ -31,23 +28,15 @@ async function encontrarModeloFuncionando(apiKey) {
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: modelo,
-          messages: [{ role: "user", content: "oi" }],
-          max_tokens: 5
-        })
+        body: JSON.stringify({ model: modelo, messages: [{ role: "user", content: "oi" }], max_tokens: 5 })
       });
       const data = await res.json();
       if (res.status === 200 && data.choices) {
         console.log("Modelo funcionando:", modelo);
         modeloAtual = modelo;
         return modelo;
-      } else {
-        console.log("Modelo indisponível:", modelo, data.error?.code);
       }
-    } catch (e) {
-      console.log("Erro ao testar modelo:", modelo, e.message);
-    }
+    } catch (e) {}
   }
   return null;
 }
@@ -99,7 +88,13 @@ app.post("/webhook", async (req, res) => {
       const telefone = msg.from;
       console.log("Mensagem de", telefone, ":", texto);
       const produto = detectarProduto(texto);
-      salvarLeadLocal(telefone, texto, produto.nome);
+
+      // Se é primeira mensagem, inicia conversa com produto detectado
+      if (!conversas[telefone]) {
+        conversas[telefone] = { produto, historico: [] };
+      }
+
+      salvarLeadLocal(telefone, texto, conversas[telefone].produto.nome);
       const resposta = await chamarGroq(telefone, texto);
       await enviarWhatsApp(telefone, resposta);
     }
@@ -119,51 +114,49 @@ app.get("/testar", async (req, res) => {
 
 function detectarProduto(mensagem) {
   const msg = mensagem.toLowerCase();
-
   if (msg.includes("curiosidades") || msg.includes("segredos") || msg.includes("biblia") || msg.includes("bíblia")) {
-    return { nome: "Segredos e Curiosidades Ocultas da Bíblia", preco: "R$19,90", link: "https://kiwify.app/PmzGa2h", descricao: "Descubra segredos e curiosidades que a maioria das pessoas nunca soube sobre a Bíblia. Conteúdo revelador e fascinante para quem quer aprofundar sua fé e conhecimento bíblico." };
+    return { nome: "Segredos e Curiosidades Ocultas da Bíblia", preco: "R$19,90", link: "https://kiwify.app/PmzGa2h", descricao: "eBook com segredos e curiosidades ocultas da Bíblia que a maioria nunca soube." };
   }
   if (msg.includes("devocional") || msg.includes("ferida") || msg.includes("feridas") || msg.includes("curad") || msg.includes("cura emocional") || msg.includes("deus") || msg.includes("restaura") || msg.includes("paz") || msg.includes("companhia") || msg.includes("libertar") || msg.includes("valor")) {
-    return { nome: "Feridas Que Deus Vê: 21 Dias de Restauração", preco: "R$9,90", link: "https://kiwify.app/e11dvCH", descricao: "Devocional de 21 dias para mulheres que carregam dores que ninguém vê, mas Deus vê. Inclui versículo, reflexão e oração guiada para cada dia, além de um bônus de 7 declarações de identidade em Cristo." };
+    return { nome: "Feridas Que Deus Vê: 21 Dias de Restauração", preco: "R$9,90", link: "https://kiwify.app/e11dvCH", descricao: "Devocional de 21 dias para mulheres que carregam dores que ninguém vê, mas Deus vê." };
   }
   if (msg.includes("diabet") || msg.includes("açúcar") || msg.includes("glicose") || msg.includes("doce vida")) {
-    return { nome: "DOCE VIDA - Receitas para Diabéticos", preco: "R$37,90", link: "https://go.hotmart.com/P99475025N", descricao: "eBook com receitas deliciosas e saudáveis para diabéticos. Inclui 3 bônus exclusivos!" };
+    return { nome: "DOCE VIDA - Receitas para Diabéticos", preco: "R$37,90", link: "https://go.hotmart.com/P99475025N", descricao: "eBook com receitas deliciosas e saudáveis para diabéticos." };
   }
   if (msg.includes("tiktok") || msg.includes("viralizar") || msg.includes("vender online") || msg.includes("renda")) {
-    return { nome: "Segredos para Viralizar no TikTok", preco: "R$27,90", link: "https://go.hotmart.com/D100124946B", descricao: "Aprenda a criar conteúdo viral no TikTok e vender todos os dias!" };
+    return { nome: "Segredos para Viralizar no TikTok", preco: "R$27,90", link: "https://go.hotmart.com/D100124946B", descricao: "Aprenda a criar conteúdo viral no TikTok e vender todos os dias." };
   }
   if (msg.includes("zenfit") || msg.includes("colageno") || msg.includes("colágeno") || msg.includes("peptideo") || msg.includes("peptídeo")) {
     return { nome: "ZenFit Caps", preco: "a partir de R$297,00", link: "https://saude-beleza.site/zenfitcaps/?pv=prodzxk5&af=afilxydg7m", descricao: "Suplemento para emagrecer de forma natural, sem dieta restritiva ou efeito rebote." };
   }
-  return { nome: "Emagreça de Forma Saudável e Duradoura", preco: "R$37,90", link: "https://go.hotmart.com/H99214246H", descricao: "Método completo para emagrecer sem efeito sanfona. Inclui 3 bônus exclusivos!" };
+  return { nome: "Emagreça de Forma Saudável e Duradoura", preco: "R$37,90", link: "https://go.hotmart.com/H99214246H", descricao: "Método completo para emagrecer sem efeito sanfona." };
 }
 
 async function chamarGroq(telefone, mensagem) {
   const apiKey = process.env.GROQ_API_KEY;
-
-  if (!conversas[telefone]) {
-    const produto = detectarProduto(mensagem);
-    conversas[telefone] = { produto, historico: [] };
-  }
-
   const { produto, historico } = conversas[telefone];
+
   historico.push({ role: "user", content: mensagem });
   if (historico.length > 20) conversas[telefone].historico = historico.slice(-20);
 
-  const systemPrompt = `Você é um vendedor simpático e focado. Responda SEMPRE em português brasileiro.
-VOCÊ SÓ PODE VENDER ESTE PRODUTO AGORA:
+  const systemPrompt = `Você é um vendedor humano e simpático no WhatsApp. Responda SEMPRE em português brasileiro.
+
+PRODUTO QUE VOCÊ VENDE:
 Nome: ${produto.nome}
 Preço: ${produto.preco}
 Descrição: ${produto.descricao}
 Link: ${produto.link}
-REGRAS ABSOLUTAS:
-- Fale APENAS sobre este produto, nunca mencione outros produtos
-- Não fale o preço logo de cara, primeiro apresente os benefícios
-- Só informe o preço quando o cliente perguntar
-- Só mande o link quando o cliente disser que quer comprar
-- Termine sempre com uma pergunta para engajar
-- Seja simpático e motivador
-- Se o produto for bíblico, use um tom acolhedor e espiritual`;
+
+REGRAS OBRIGATÓRIAS:
+- Mensagens CURTAS, máximo 3 linhas, sem listas com bullet points
+- Tom natural de WhatsApp, como um amigo conversando
+- Na primeira mensagem: desperte curiosidade com 1 frase impactante e faça UMA pergunta curta
+- Se o cliente demonstrar interesse: apresente 1 ou 2 benefícios principais de forma simples
+- Se o cliente perguntar o preço: informe o preço e mande o link IMEDIATAMENTE na mesma mensagem
+- Se o cliente disser "quero", "me manda", "como compro" ou qualquer sinal de querer comprar: mande o link IMEDIATAMENTE
+- NUNCA use bullet points, listas ou asteriscos em excesso
+- NUNCA mude de produto, fale SOMENTE sobre ${produto.nome}
+- Se o produto for bíblico, use tom acolhedor e espiritual`;
 
   try {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -173,13 +166,11 @@ REGRAS ABSOLUTAS:
     });
     const data = await res.json();
 
-    // Se modelo parou de funcionar, busca outro automaticamente
-    if (data.error?.code === "model_decommissioned" || data.error?.code === "model_not_found" || res.status === 404 || res.status === 400) {
+    if (data.error?.code === "model_decommissioned" || data.error?.code === "model_not_found" || res.status === 400 || res.status === 404) {
       console.log("Modelo parou, buscando alternativo...");
       const novoModelo = await encontrarModeloFuncionando(apiKey);
       if (!novoModelo) return "Desculpe, estou com dificuldades técnicas. Tente novamente em instantes!";
 
-      // Tenta de novo com o novo modelo
       const res2 = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
@@ -214,11 +205,10 @@ async function enviarWhatsApp(telefone, mensagem) {
   }
 }
 
-// Verifica modelo ativo ao iniciar
 const apiKey = process.env.GROQ_API_KEY;
 encontrarModeloFuncionando(apiKey).then(m => {
   if (m) console.log("Modelo ativo ao iniciar:", m);
-  else console.log("Nenhum modelo disponível ao iniciar!");
+  else console.log("Nenhum modelo disponível!");
 });
 
 const PORT = process.env.PORT || 8080;
