@@ -129,7 +129,7 @@ REGRAS ABSOLUTAS:
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "llama-3.1-8b-instant", messages: [{ role: "system", content: systemPrompt }, ...conversas[telefone].historico] })
+      body: JSON.stringify({ model: "llama3-8b-8192", messages: [{ role: "system", content: systemPrompt }, ...conversas[telefone].historico] })
     });
     const data = await response.json();
     console.log("Groq status:", response.status);
