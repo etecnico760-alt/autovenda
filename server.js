@@ -11,6 +11,47 @@ app.use(express.static(path.join(__dirname)));
 const conversas = {};
 const LEADS_FILE = path.join(__dirname, "leads.json");
 
+// Modelos em ordem de preferência
+const MODELOS_GROQ = [
+  "openai/gpt-oss-20b",
+  "openai/gpt-oss-120b",
+  "qwen/qwen3.6-27b",
+  "meta-llama/llama-4-scout-17b-16e-instruct",
+  "llama-3.3-70b-versatile",
+  "llama3-70b-8192",
+  "llama3-8b-8192",
+  "llama-3.1-8b-instant"
+];
+
+let modeloAtual = MODELOS_GROQ[0];
+
+async function encontrarModeloFuncionando(apiKey) {
+  for (const modelo of MODELOS_GROQ) {
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: modelo,
+          messages: [{ role: "user", content: "oi" }],
+          max_tokens: 5
+        })
+      });
+      const data = await res.json();
+      if (res.status === 200 && data.choices) {
+        console.log("Modelo funcionando:", modelo);
+        modeloAtual = modelo;
+        return modelo;
+      } else {
+        console.log("Modelo indisponível:", modelo, data.error?.code);
+      }
+    } catch (e) {
+      console.log("Erro ao testar modelo:", modelo, e.message);
+    }
+  }
+  return null;
+}
+
 function carregarLeads() {
   try {
     if (fs.existsSync(LEADS_FILE)) return JSON.parse(fs.readFileSync(LEADS_FILE, "utf8"));
@@ -50,7 +91,6 @@ app.get("/webhook", (req, res) => {
 });
 
 app.post("/webhook", async (req, res) => {
-  console.log("Webhook recebido!");
   const body = req.body;
   if (body.object === "whatsapp_business_account") {
     const msg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
@@ -60,12 +100,8 @@ app.post("/webhook", async (req, res) => {
       console.log("Mensagem de", telefone, ":", texto);
       const produto = detectarProduto(texto);
       salvarLeadLocal(telefone, texto, produto.nome);
-      console.log("Chamando Groq...");
       const resposta = await chamarGroq(telefone, texto);
-      console.log("Resposta Groq:", resposta?.substring(0, 50));
-      console.log("Enviando WhatsApp...");
       await enviarWhatsApp(telefone, resposta);
-      console.log("WhatsApp enviado!");
     }
   }
   res.sendStatus(200);
@@ -75,7 +111,7 @@ app.get("/testar", async (req, res) => {
   const mensagem = req.query.msg || "Olá!";
   try {
     const resposta = await chamarGroq("teste", mensagem);
-    res.json({ voce: mensagem, bot: resposta });
+    res.json({ voce: mensagem, bot: resposta, modelo: modeloAtual });
   } catch (err) {
     res.json({ voce: mensagem, bot: "Erro: " + err.message });
   }
@@ -83,11 +119,12 @@ app.get("/testar", async (req, res) => {
 
 function detectarProduto(mensagem) {
   const msg = mensagem.toLowerCase();
+
   if (msg.includes("curiosidades") || msg.includes("segredos") || msg.includes("biblia") || msg.includes("bíblia")) {
-    return { nome: "Segredos e Curiosidades Ocultas da Bíblia", preco: "R$19,90", link: "https://kiwify.app/PmzGa2h", descricao: "Descubra segredos e curiosidades que a maioria das pessoas nunca soube sobre a Bíblia." };
+    return { nome: "Segredos e Curiosidades Ocultas da Bíblia", preco: "R$19,90", link: "https://kiwify.app/PmzGa2h", descricao: "Descubra segredos e curiosidades que a maioria das pessoas nunca soube sobre a Bíblia. Conteúdo revelador e fascinante para quem quer aprofundar sua fé e conhecimento bíblico." };
   }
   if (msg.includes("devocional") || msg.includes("ferida") || msg.includes("feridas") || msg.includes("curad") || msg.includes("cura emocional") || msg.includes("deus") || msg.includes("restaura") || msg.includes("paz") || msg.includes("companhia") || msg.includes("libertar") || msg.includes("valor")) {
-    return { nome: "Feridas Que Deus Vê: 21 Dias de Restauração", preco: "R$9,90", link: "https://kiwify.app/e11dvCH", descricao: "Devocional de 21 dias para mulheres que carregam dores que ninguém vê, mas Deus vê." };
+    return { nome: "Feridas Que Deus Vê: 21 Dias de Restauração", preco: "R$9,90", link: "https://kiwify.app/e11dvCH", descricao: "Devocional de 21 dias para mulheres que carregam dores que ninguém vê, mas Deus vê. Inclui versículo, reflexão e oração guiada para cada dia, além de um bônus de 7 declarações de identidade em Cristo." };
   }
   if (msg.includes("diabet") || msg.includes("açúcar") || msg.includes("glicose") || msg.includes("doce vida")) {
     return { nome: "DOCE VIDA - Receitas para Diabéticos", preco: "R$37,90", link: "https://go.hotmart.com/P99475025N", descricao: "eBook com receitas deliciosas e saudáveis para diabéticos. Inclui 3 bônus exclusivos!" };
@@ -103,14 +140,16 @@ function detectarProduto(mensagem) {
 
 async function chamarGroq(telefone, mensagem) {
   const apiKey = process.env.GROQ_API_KEY;
-  console.log("GROQ_API_KEY presente:", !!apiKey);
+
   if (!conversas[telefone]) {
     const produto = detectarProduto(mensagem);
     conversas[telefone] = { produto, historico: [] };
   }
+
   const { produto, historico } = conversas[telefone];
   historico.push({ role: "user", content: mensagem });
   if (historico.length > 20) conversas[telefone].historico = historico.slice(-20);
+
   const systemPrompt = `Você é um vendedor simpático e focado. Responda SEMPRE em português brasileiro.
 VOCÊ SÓ PODE VENDER ESTE PRODUTO AGORA:
 Nome: ${produto.nome}
@@ -125,20 +164,38 @@ REGRAS ABSOLUTAS:
 - Termine sempre com uma pergunta para engajar
 - Seja simpático e motivador
 - Se o produto for bíblico, use um tom acolhedor e espiritual`;
+
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages: [{ role: "system", content: systemPrompt }, ...conversas[telefone].historico] })
+      body: JSON.stringify({ model: modeloAtual, messages: [{ role: "system", content: systemPrompt }, ...conversas[telefone].historico] })
     });
-    const data = await response.json();
-    console.log("Groq status:", response.status);
-    if (data.error) console.error("Groq erro:", data.error);
-    const resposta = data.choices?.[0]?.message?.content || "Sem resposta";
+    const data = await res.json();
+
+    // Se modelo parou de funcionar, busca outro automaticamente
+    if (data.error?.code === "model_decommissioned" || data.error?.code === "model_not_found" || res.status === 404 || res.status === 400) {
+      console.log("Modelo parou, buscando alternativo...");
+      const novoModelo = await encontrarModeloFuncionando(apiKey);
+      if (!novoModelo) return "Desculpe, estou com dificuldades técnicas. Tente novamente em instantes!";
+
+      // Tenta de novo com o novo modelo
+      const res2 = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+        body: JSON.stringify({ model: modeloAtual, messages: [{ role: "system", content: systemPrompt }, ...conversas[telefone].historico] })
+      });
+      const data2 = await res2.json();
+      const resposta2 = data2.choices?.[0]?.message?.content || "Desculpe, tente novamente!";
+      conversas[telefone].historico.push({ role: "assistant", content: resposta2 });
+      return resposta2;
+    }
+
+    const resposta = data.choices?.[0]?.message?.content || "Desculpe, tente novamente!";
     conversas[telefone].historico.push({ role: "assistant", content: resposta });
     return resposta;
   } catch (err) {
-    console.error("Erro Groq fetch:", err.message);
+    console.error("Erro Groq:", err.message);
     return "Desculpe, tive um problema técnico. Tente novamente!";
   }
 }
@@ -147,17 +204,22 @@ async function enviarWhatsApp(telefone, mensagem) {
   const token = process.env.WHATSAPP_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID || "1151104828086519";
   try {
-    const res = await fetch(`https://graph.facebook.com/v18.0/${phoneId}/messages`, {
+    await fetch(`https://graph.facebook.com/v18.0/${phoneId}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
       body: JSON.stringify({ messaging_product: "whatsapp", to: telefone, type: "text", text: { body: mensagem } })
     });
-    const data = await res.json();
-    console.log("WhatsApp status:", res.status, JSON.stringify(data).substring(0, 100));
   } catch (err) {
     console.error("Erro WhatsApp:", err.message);
   }
 }
+
+// Verifica modelo ativo ao iniciar
+const apiKey = process.env.GROQ_API_KEY;
+encontrarModeloFuncionando(apiKey).then(m => {
+  if (m) console.log("Modelo ativo ao iniciar:", m);
+  else console.log("Nenhum modelo disponível ao iniciar!");
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => console.log("Rodando na porta " + PORT));
