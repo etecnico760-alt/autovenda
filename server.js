@@ -10,19 +10,21 @@ app.use(express.static(path.join(__dirname)));
 const conversas = {};
 
 const SUPABASE_URL = "https://ckwyxmdfhwcztkrbbnph.supabase.co";
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrd3l4bWRmaHdjenRrcmJibnBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MzYwNTYsImV4cCI6MjA5MzUxMjA1Nn0.Vybkz6tgu2BBhkmjYG3LU9SuCX-LdVTwxd1PE_UaH-E";
 
 async function salvarLead(telefone, mensagem, produto) {
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "apikey": SUPABASE_KEY,
-        "Authorization": `Bearer ${SUPABASE_KEY}`
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Prefer": "return=minimal"
       },
       body: JSON.stringify({ telefone, mensagem, produto })
     });
+    console.log("Lead salvo, status:", res.status);
   } catch (err) {
     console.error("Erro ao salvar lead:", err.message);
   }
